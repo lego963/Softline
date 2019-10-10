@@ -3,40 +3,35 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-6">
-            <form asp-controller="Parse" asp-action="ParseFile" method="post">
-                <div>
-                    <div class="form-group">
-                        <label asp-for="DbName"></label>
-                        <input type="text" asp-for="DbName" class="form-control" />
-                        <span asp-validation-for="DbName"></span>
+            <form enctype="multipart/form-data" asp-controller="Parse" asp-action="Index" method="post">
+                <div class="form-group">
+                    <label asp-for="DbName"></label>
+                    <input class="form-control" type="text" asp-for="DbName" />
+                    <span asp-validation-for="DbName"></span>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <label asp-for="File"></label>
+                    <input type="file" asp-for="File" />
+                    <span asp-validation-for="File"></span>
+                </div>
+                <br />
+
+                <div class="custom-control custom-checkbox">
+                    @Html.CheckBoxFor(model => model.IsFirstRowTitle) Is first row title
+                </div>
+                <br />
+
+                @foreach (var separatorType in Model.SeparatorTypes)
+                {
+                    <div class="custom-control custom-radio">
+                        @Html.RadioButtonFor(model => model.Separator, separatorType) @separatorType
                     </div>
-                    <div class="form-group">
-                        <label asp-for="FilePath"></label>
-                        <input type="file" asp-for="FilePath" class="form-control" />
-                        <span asp-validation-for="FilePath"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="IsFirstRowTitle"></label>
-                        <input type="checkbox" asp-for="IsFirstRowTitle" class="form-control" />
-                        <span asp-validation-for="IsFirstRowTitle"></span>
-                    </div>
-                    @*<div class="btn-group">
-                        <div class="radio">
-                            <label asp-for="Separator"></label>
-                            <input type="radio" name="optradio" asp-for="Separator" checked>
-                        </div>
-                        <div class="radio">
-                            <label asp-for="Separator"></label>
-                            <input type="radio" name="optradio" asp-for="Separator">
-                        </div>
-                        <div class="radio">
-                            <label asp-for="Separator"></label>
-                            <input type="radio" name="optradio" asp-for="Separator">
-                        </div>
-                    </div>*@
-                    <div class="form-group">
-                        <input type="submit" value="Parse" class="btn btn-primary" />
-                    </div>
+                }
+
+                <div class="form-group">
+                    <input type="submit" value="Parse" class="btn btn-primary" />
                 </div>
             </form>
         </div>
@@ -61,20 +56,31 @@
                     </tbody>
                 </table>
             </div>
+            <br />
+            <br />
             <div>
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Имя столбца</th>
+                            @if (Model.TableTitle != null && Model.TableTitle.Count > 0)
+                            {
+                                foreach (var title in Model.TableTitle)
+                                {
+                                    <th>@title</th>
+                                }
+                            }
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model.TableTitle != null && Model.TableTitle.Count > 0)
+                        @if (Model.TableData != null && Model.TableData.Count > 0)
                         {
-                            foreach (var title in Model.TableTitle)
+                            foreach (var row in Model.TableData)
                             {
                                 <tr>
-                                    <td>@title</td>
+                                    @foreach (var dataItem in row.RowData)
+                                    {
+                                        <td>@dataItem</td>
+                                    }
                                 </tr>
                             }
                         }

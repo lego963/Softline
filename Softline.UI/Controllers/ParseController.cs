@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Softline.DAL.Repository;
+using Softline.Model.Entity;
 using Softline.UI.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -24,49 +26,74 @@ namespace Softline.UI.Controllers
         }
 
         [HttpPost]
-        public IActionResult ParseFile(ParseViewModel model)
+        public IActionResult Index(ParseViewModel model)
         {
             if (ModelState.IsValid)
             {
-                using StreamReader sr = new StreamReader(model.FilePath);
                 switch (model.Separator)
                 {
-                    case SeparatorType.SignOfTabulation:
-                        ProcessFile(model, sr, "\t");
+                    case "SignOfTabulation":
+                        ProcessFile(ref model, "\t");
                         break;
-                    case SeparatorType.Space:
-                        ProcessFile(model, sr, " ");
+                    case "Space":
+                        ProcessFile(ref model, " ");
                         break;
-                    case SeparatorType.Semicolon:
-                        ProcessFile(model, sr, ";");
+                    case "Semicolon":
+                        ProcessFile(ref model, ";");
                         break;
-                    case SeparatorType.Another:
-                        ProcessFile(model, sr, "ASDASDA");
+                    case "Another":
+                        ProcessFile(ref model, "ASDASDA");
                         break;
                     default:
-                        throw new NullReferenceException();
+                        return NotFound();
                 }
             }
-            return View();
+            var request = new Request { RequestTime = DateTime.Now, RequestAction = $"Create database <{model.DbName}>\nCreate table <{model.File.FileName}>\n" };
+            foreach (var item in model.TableTitle)
+            {
+                request.RequestAction += $"\tCreate column <{item}>\n";
+            }
+            foreach (var row in model.TableData)
+            {
+                string tmpRow = string.Empty;
+                foreach (var dataItem in row.RowData)
+                {
+                    tmpRow += @$"\{dataItem}\ ";
+                }
+                request.RequestAction += $"Insert row <{tmpRow}>\n";
+            }
+            requestRepository.AddRequest(request);
+            return View(model);
         }
 
-        private static void ProcessFile(ParseViewModel model, StreamReader sr, string separator)
+        private static void ProcessFile(ref ParseViewModel model, string separator)
         {
-            if (model.IsFirstRowTitle)
+            List<char> letters;
+            using (var memoryStream = new MemoryStream())
             {
-                foreach (var title in sr.ReadLine().Split(separator))
+                model.File.CopyTo(memoryStream);
+                letters = memoryStream.ToArray().Select(letter => (char)letter).ToList();
+            }
+            string tmpRow = string.Empty;
+            letters.RemoveAll(letter => letter == '\r');
+            foreach (var letter in letters)
+            {
+                if (letter != '\n')
                 {
-                    model.TableTitle.Add(title);
+                    tmpRow += letter;
+                }
+                else
+                {
+                    model.TableData.Add(new Row(tmpRow.ToString().Split(separator).ToList()));
+                    tmpRow = string.Empty;
                 }
             }
-            model.TableData = sr
-                .ReadToEnd()
-                .Split("\n")
-                .Select(
-                    row => new Row(row
-                    .Split(separator)
-                    .ToList()))
-                .ToList();
+
+            if (model.IsFirstRowTitle)
+            {
+                model.TableTitle = model.TableData[0].RowData;
+                model.TableData.RemoveAt(0);
+            }
         }
     }
 }

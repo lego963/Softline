@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace Softline.UI.ViewModels
 {
@@ -6,15 +7,18 @@ namespace Softline.UI.ViewModels
     {
         public string DbName { get; set; }
 
-        public string FilePath { get; set; }
+        public IFormFile File { get; set; }
 
         public bool IsFirstRowTitle { get; set; }
 
-        public SeparatorType Separator { get; set; }
+        public string Separator { get; set; }
 
-        public List<string> TableTitle { get; set; }
+        public string[] SeparatorTypes = { "SignOfTabulation", "Semicolon", "Space", "Another" };
 
-        public List<Row> TableData { get; set; }
+        public List<string> TableTitle { get; set; } = new List<string>();
+
+        public List<Row> TableData { get; set; } = new List<Row>();
+
     }
 
     public class Row
