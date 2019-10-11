@@ -42,12 +42,14 @@ namespace Softline.UI.Controllers
                         ProcessFile(ref model, ";");
                         break;
                     case "Another":
-                        ProcessFile(ref model, "ASDASDA");
+                        ProcessFile(ref model, model.AnotherSeparator);
                         break;
                     default:
                         return NotFound();
                 }
             }
+
+
             var request = new Request { RequestTime = DateTime.Now, RequestAction = $"Create database <{model.DbName}>\nCreate table <{model.File.FileName}>\n" };
             foreach (var item in model.TableTitle)
             {

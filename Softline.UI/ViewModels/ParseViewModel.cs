@@ -15,6 +15,8 @@ namespace Softline.UI.ViewModels
 
         public string[] SeparatorTypes = { "SignOfTabulation", "Semicolon", "Space", "Another" };
 
+        public string AnotherSeparator { get; set; }
+
         public List<string> TableTitle { get; set; } = new List<string>();
 
         public List<Row> TableData { get; set; } = new List<Row>();

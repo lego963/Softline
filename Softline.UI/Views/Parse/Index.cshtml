@@ -25,9 +25,20 @@
 
                 @foreach (var separatorType in Model.SeparatorTypes)
                 {
-                    <div class="custom-control custom-radio">
-                        @Html.RadioButtonFor(model => model.Separator, separatorType) @separatorType
-                    </div>
+                    if (separatorType != "Another")
+                    {
+                        <div class="custom-control custom-radio">
+                            @Html.RadioButtonFor(model => model.Separator, separatorType) @separatorType
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="custom-control custom-radio">
+                            @Html.RadioButtonFor(model => model.Separator, separatorType) @separatorType
+                            @Html.TextBoxFor(model => model.AnotherSeparator, separatorType)
+                        </div>
+                    }
+
                 }
 
                 <div class="form-group">
@@ -35,7 +46,9 @@
                 </div>
             </form>
         </div>
+
         <div class="col-sm-6">
+
             <div>
                 <table class="table table-striped">
                     <thead>
@@ -43,7 +56,7 @@
                             <th>Имя столбца</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableTitles">
                         @if (Model.TableTitle != null && Model.TableTitle.Count > 0)
                         {
                             foreach (var title in Model.TableTitle)
@@ -52,15 +65,28 @@
                                     <td>@title</td>
                                 </tr>
                             }
+                            <tr>
+                                <td id="newColumn"></td>
+                            </tr>
                         }
                     </tbody>
                 </table>
+
+                <div class="form-group">
+                    <label for="name">New column:</label>
+                    <input class="form-control" name="newColumnInput" />
+                </div>
+
+                <div class="panel-body">
+                    <button type="button" class="btn btn-sm btn-primary" id="add">Add new</button>
+                </div>
+
             </div>
             <br />
             <br />
             <div>
                 <table class="table table-striped">
-                    <thead>
+                    <thead id="tableData">
                         <tr>
                             @if (Model.TableTitle != null && Model.TableTitle.Count > 0)
                             {
@@ -90,3 +116,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    $("#add").click(loadTable("tableTitle", $("#newColumnInput").val()) {
+                $("#tableTitle").html("<tr><td>ghjk</td><tr>");
+    });
+    
+    function loadTable(tableId, data) {
+        var rows = '';
+        $.each(data, function (index, item) {
+            var row = '<tr>';
+            row += '<td>' + item[field + ''] + '</td>';
+            rows += row + '<tr>';
+        });
+        $('#' + tableId).html(rows);
+    }
+</script>
